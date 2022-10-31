@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_estados/bloc/user/user_bloc.dart';
 
 import 'package:flutter_estados/routes/routes.dart';
 import 'package:flutter_estados/screens/screens.dart';
@@ -10,11 +12,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter estados',
-      debugShowCheckedModeBanner: false,
-      initialRoute: HomeScreen.routerName,
-      routes: routes,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => UserBloc()),
+      ],
+      child: MaterialApp(
+        title: 'Flutter estados',
+        debugShowCheckedModeBanner: false,
+        initialRoute: HomeScreen.routerName,
+        routes: routes,
+      ),
     );
   }
 }
