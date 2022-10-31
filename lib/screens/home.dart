@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_estados/bloc/user/user_cubit.dart';
+import 'package:flutter_estados/models/user.dart';
 import 'package:flutter_estados/screens/screens.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,8 +14,13 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pantalla 1'),
+        leading: IconButton(
+          icon: const Icon(Icons.exit_to_app_outlined),
+          onPressed: () => context.read<UserCubit>().deleteUser(),
+        ),
       ),
-      body: const UserInformation(),
+      body: const ScaffoldBody(),
+      //
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(
           context,
@@ -24,10 +32,37 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class UserInformation extends StatelessWidget {
-  const UserInformation({
+class ScaffoldBody extends StatelessWidget {
+  const ScaffoldBody({
     Key? key,
   }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserCubit, UserState>(
+      builder: (_, state) {
+        switch (state.runtimeType) {
+          case InitialUser:
+            return const Center(child: Text('No hay informacion del usuario'));
+
+          case ActiveUser:
+            return UserInformation((state as ActiveUser).user);
+
+          default:
+            return const Center();
+        }
+      },
+    );
+  }
+}
+
+class UserInformation extends StatelessWidget {
+  const UserInformation(
+    this.user, {
+    Key? key,
+  }) : super(key: key);
+
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -37,32 +72,34 @@ class UserInformation extends StatelessWidget {
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
+        children: [
+          const Text(
             'General',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('Nombre: '),
+            title: Text('Nombre: ${user.name}'),
           ),
           ListTile(
-            title: Text('Edad: '),
+            title: Text('Edad: ${user.age}'),
           ),
-          Text(
+          const Text(
             'Profesiones',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Divider(),
-          ListTile(
-            title: Text('Profesión 1:'),
-          ),
+          const Divider(),
+          ...user.professions
+              .map((profession) => ListTile(
+                    title: Text(profession),
+                  ))
+              .toList()
         ],
       ),
     );
